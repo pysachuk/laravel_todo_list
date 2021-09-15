@@ -10,12 +10,9 @@
                         <h4>Создание задачи:</h4>
                     </div>
                     <div class="card-body">
-{{--                        <form action="{{ route('task.store') }}" method="POST">--}}
-{{--                            @csrf--}}
                             <label for="inputTask" class="form-label">Задача</label>
                             <input type="text" id="inputTask" class="form-control" name="task">
                             <button type="button" style="margin-top: 20px" class="btn btn-primary addTaskButton">Добавить</button>
-{{--                        </form>--}}
                     </div>
                 </div>
                 <div class="card" style="margin-top: 20px">
@@ -116,35 +113,60 @@
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
-            timer: 3000,
+            timer: 5000,
             timerProgressBar: true,
             didOpen: (toast) => {
                 toast.addEventListener('mouseenter', Swal.stopTimer)
                 toast.addEventListener('mouseleave', Swal.resumeTimer)
             }
         })
-        // Enable pusher logging - don't include this in production
-        // Pusher.logToConsole = true;
-
         // Initiate the Pusher JS library
         var pusher = new Pusher('da00bb7b7e66cc556c6c', {
             cluster: 'eu',
             encrypted: true
         });
         // Subscribe to the channel we specified in our Laravel Event
-        var channel = pusher.subscribe('task-added');
+        var channelAdded = pusher.subscribe('task-added');
 
         // Bind a function to a Event (the full Laravel class)
-        channel.bind('App\\Events\\TaskAdded', function(data) {
+        channelAdded.bind('App\\Events\\TaskAdded', function(data) {
             if(data.message)
             {
                 Toast.fire({
                     icon: 'success',
                     title: data.message
                 })
-                getTasks();
+                var page = $('.active span').text();
+                getTasks(page);
             }
             // this is called when the event notification is received...
         });
+        var channelCompleted = pusher.subscribe('task-completed');
+        channelCompleted.bind('App\\Events\\TaskCompleted', function(data) {
+            if(data.message)
+            {
+                Toast.fire({
+                    icon: 'success',
+                    title: data.message
+                })
+                var page = $('.active span').text();
+                getTasks(page);
+            }
+            // this is called when the event notification is received...
+        });
+        var channelDeleted = pusher.subscribe('task-deleted');
+        channelDeleted.bind('App\\Events\\TaskDeleted', function(data) {
+            if(data.message)
+            {
+                Toast.fire({
+                    icon: 'info',
+                    title: data.message
+                })
+                var page = $('.active span').text();
+                getTasks(page);
+            }
+            // this is called when the event notification is received...
+        });
+
     </script>
 @endsection

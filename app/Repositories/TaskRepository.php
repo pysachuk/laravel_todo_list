@@ -24,14 +24,23 @@ class TaskRepository
         return $task;
     }
 
-    public function completeTask(Task $task)
+    public function completeTask($task_id)
     {
+        $task = Task::findOrFail($task_id);
         $task -> is_done = 1;
-        return $task -> save();
+        $task -> save();
+        return $task;
     }
 
-    public function deleteTask(Task $task)
+    public function deleteTask($task_id)
     {
+        $task = Task::findOrFail($task_id);
         return $task -> delete();
+    }
+
+    public function getTaskName($task_id)
+    {
+        $task = Task::findOrFail($task_id);
+        return $task -> task;
     }
 }

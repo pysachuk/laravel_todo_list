@@ -19,9 +19,9 @@ Route::middleware('auth') -> group(function(){
         ->name('getTasks');
     Route::post('/task/store', [\App\Http\Controllers\TaskController::class, 'store'])
         ->name('task.store');
-    Route::get('/task/complete/{task}', [\App\Http\Controllers\TaskController::class, 'complete'])
+    Route::post('/task/complete', [\App\Http\Controllers\TaskController::class, 'complete'])
         ->name('task.complete');
-    Route::delete('task/delete/{task}', [\App\Http\Controllers\TaskController::class, 'delete'])
+    Route::delete('task/delete', [\App\Http\Controllers\TaskController::class, 'delete'])
         ->name('task.delete');
 });
 Route::get('test', function () {

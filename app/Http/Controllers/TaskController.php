@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Events\TaskAdded;
+use App\Events\TaskCompleted;
+use App\Events\TaskDeleted;
+use App\Http\Requests\CompleteTaskRequest;
 use App\Http\Requests\StoreTaskRequest;
 use App\Models\Task;
 use App\Repositories\TaskRepository;
+use http\Env\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
@@ -32,9 +36,9 @@ class TaskController extends Controller
                 event(new TaskAdded(Auth::user() -> name, $task));
                 return response() -> json(['OK' => 1]);
             }
-            else
-                return abort(404);
         }
+        else
+            return abort(404);
     }
 
     public function getTasks()
@@ -43,15 +47,30 @@ class TaskController extends Controller
         return view('task.tasks', compact('tasks'));
     }
 
-    public function complete(Task $task)
+    public function complete(CompleteTaskRequest $request)
     {
-        if($this -> taskRepository -> completeTask($task))
-            return redirect() -> back() -> with('success', 'Задача выполнена.');
+        if($request -> ajax())
+        {
+            $task = $this -> taskRepository -> completeTask($request -> task_id);
+            if($task)
+            {
+                event(new TaskCompleted(Auth::user() -> name, $task));
+                return response() -> json(['OK' => 1]);
+            }
+        }
+        else
+            return abort(404);
+
     }
 
-    public function delete(Task $task)
+    public function delete(\Illuminate\Http\Request $request)
     {
-        if($this -> taskRepository -> deleteTask($task))
-            return redirect() -> back() -> with('info', 'Задача Удалена.');
+        $task_id = $request -> task_id;
+        $task_name = $this -> taskRepository -> getTaskName($task_id);
+        if($this -> taskRepository -> deleteTask($task_id))
+        {
+            event(new TaskDeleted(Auth::user() -> name, $task_name));
+            return response() -> json(['OK' => 1]);
+        }
     }
 }
