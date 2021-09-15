@@ -7,10 +7,10 @@ use App\Events\TaskCompleted;
 use App\Events\TaskDeleted;
 use App\Http\Requests\CompleteTaskRequest;
 use App\Http\Requests\StoreTaskRequest;
-use App\Models\Task;
 use App\Repositories\TaskRepository;
-use http\Env\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TaskCompleted as MailTaskCompleted;
 
 class TaskController extends Controller
 {
@@ -55,6 +55,8 @@ class TaskController extends Controller
             if($task)
             {
                 event(new TaskCompleted(Auth::user() -> name, $task));
+                Mail::to(env('ADMIN_EMAIL', 'pysachuk@gmail.com'))
+                    -> send(new MailTaskCompleted($task, Auth::user()));
                 return response() -> json(['OK' => 1]);
             }
         }
@@ -63,7 +65,7 @@ class TaskController extends Controller
 
     }
 
-    public function delete(\Illuminate\Http\Request $request)
+    public function delete(CompleteTaskRequest $request)
     {
         $task_id = $request -> task_id;
         $task_name = $this -> taskRepository -> getTaskName($task_id);
