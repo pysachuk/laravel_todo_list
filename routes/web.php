@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Auth::routes();
+
 Route::middleware('auth') -> group(function(){
     Route::get('/', [\App\Http\Controllers\TaskController::class, 'index'])
         ->name('tasks');
@@ -21,14 +23,7 @@ Route::middleware('auth') -> group(function(){
         ->name('task.store');
     Route::post('/task/complete', [\App\Http\Controllers\TaskController::class, 'complete'])
         ->name('task.complete');
-    Route::delete('task/delete', [\App\Http\Controllers\TaskController::class, 'delete'])
+    Route::delete('/task/delete', [\App\Http\Controllers\TaskController::class, 'delete'])
         ->name('task.delete');
 });
-Route::get('test', function () {
-    event(new App\Events\TaskAdded('Pysachuk'));
-    return "Event has been sent!";
-});
 
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
