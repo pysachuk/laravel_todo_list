@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TaskAdded;
 use App\Http\Requests\StoreTaskRequest;
 use App\Models\Task;
 use App\Repositories\TaskRepository;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
@@ -17,15 +19,28 @@ class TaskController extends Controller
 
     public function index()
     {
-        $tasks = $this -> taskRepository -> getTasks(5);
-        return view('task.index', compact('tasks'));
+        return view('task.index');
     }
 
     public function store(StoreTaskRequest $request)
     {
-        return $this -> taskRepository -> createTask($request) ?
-            redirect() -> back() -> with('success', 'Задача успешно добавлена') :
-            abort(404);
+        if($request -> ajax())
+        {
+            $task = $this -> taskRepository -> createTask($request);
+            if($task)
+            {
+                event(new TaskAdded(Auth::user() -> name, $task));
+                return response() -> json(['OK' => 1]);
+            }
+            else
+                return abort(404);
+        }
+    }
+
+    public function getTasks()
+    {
+        $tasks = $this -> taskRepository -> getTasks(5);
+        return view('task.tasks', compact('tasks'));
     }
 
     public function complete(Task $task)

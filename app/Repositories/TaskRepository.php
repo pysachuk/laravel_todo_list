@@ -20,7 +20,8 @@ class TaskRepository
         $task = new Task;
         $task -> task = $request -> task;
         $task -> user_id = Auth::id();
-        return $task -> save();
+        $task -> save();
+        return $task;
     }
 
     public function completeTask(Task $task)
