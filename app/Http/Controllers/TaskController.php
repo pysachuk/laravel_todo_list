@@ -6,7 +6,9 @@ use App\Events\TaskAdded;
 use App\Events\TaskCompleted;
 use App\Events\TaskDeleted;
 use App\Http\Requests\CompleteTaskRequest;
+use App\Http\Requests\DeleteTaskRequest;
 use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\GetTasksRequest;
 use App\Repositories\TaskRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -23,55 +25,45 @@ class TaskController extends Controller
 
     public function index()
     {
-        return view('task.index');
+        return view('todo_list.index');
     }
 
     public function store(StoreTaskRequest $request)
     {
-        if($request -> ajax())
+        $task = $this -> taskRepository -> createTask($request);
+        if($task)
         {
-            $task = $this -> taskRepository -> createTask($request);
-            if($task)
-            {
-                event(new TaskAdded(Auth::user() -> name, $task));
-                return response() -> json(['OK' => 1]);
-            }
+            event(new TaskAdded(Auth::user() -> name, $task));
+            return response() -> json(['OK' => 1]);
         }
-        else
-            return abort(404);
     }
 
-    public function getTasks()
+    public function getTasks(GetTasksRequest $request)
     {
         $tasks = $this -> taskRepository -> getTasks(5);
-        return view('task.tasks', compact('tasks'));
+        return view('todo_list.tasks', compact('tasks'));
     }
 
     public function complete(CompleteTaskRequest $request)
     {
-        if($request -> ajax())
+        $task = $this -> taskRepository -> completeTask($request -> task_id);
+        if($task)
         {
-            $task = $this -> taskRepository -> completeTask($request -> task_id);
-            if($task)
-            {
-                event(new TaskCompleted(Auth::user() -> name, $task));
-                Mail::to(env('ADMIN_EMAIL', 'pysachuk@gmail.com'))
-                    -> send(new MailTaskCompleted($task, Auth::user()));
-                return response() -> json(['OK' => 1]);
-            }
+            event(new TaskCompleted(Auth::user() -> name, $task));
+            Mail::to(env('ADMIN_EMAIL'))
+                -> send(new MailTaskCompleted($task, Auth::user()));
+            return response() -> json(['OK' => 1]);
         }
-        else
-            return abort(404);
-
     }
 
-    public function delete(CompleteTaskRequest $request)
+    public function delete(DeleteTaskRequest $request)
     {
-        $task_id = $request -> task_id;
-        $task_name = $this -> taskRepository -> getTaskName($task_id);
-        if($this -> taskRepository -> deleteTask($task_id))
+        $task = $this -> taskRepository -> getTask($request -> task_id);
+        if($task -> is_done == 0)
+            return response() -> json(['error' => 'Задача не выполнена!']);
+        if($this -> taskRepository -> deleteTask($request -> task_id))
         {
-            event(new TaskDeleted(Auth::user() -> name, $task_name));
+            event(new TaskDeleted(Auth::user() -> name, $task -> task));
             return response() -> json(['OK' => 1]);
         }
     }

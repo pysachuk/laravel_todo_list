@@ -77,8 +77,8 @@ $(document).ready(function (){
 function getTasks(page = 1)
 {
     $.ajax({
-        url: "/getTasks?page="+page,
-        type: "GET",
+        url: "/get_tasks?page="+page,
+        type: "POST",
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },

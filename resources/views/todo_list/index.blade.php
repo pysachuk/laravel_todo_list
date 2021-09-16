@@ -1,9 +1,9 @@
-@extends('task.layouts.app')
+@extends('todo_list.layouts.app')
 @section('title', 'Task List')
 @section('content')
     <div class="container">
         <div class="row">
-            @include('task.flash-message')
+            @include('todo_list.flash-message')
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">

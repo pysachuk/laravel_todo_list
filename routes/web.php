@@ -17,7 +17,7 @@ Auth::routes();
 Route::middleware('auth') -> group(function(){
     Route::get('/', [\App\Http\Controllers\TaskController::class, 'index'])
         ->name('tasks');
-    Route::get('/getTasks', [\App\Http\Controllers\TaskController::class, 'getTasks'])
+    Route::post('/get_tasks', [\App\Http\Controllers\TaskController::class, 'getTasks'])
         ->name('getTasks');
     Route::post('/task/store', [\App\Http\Controllers\TaskController::class, 'store'])
         ->name('task.store');

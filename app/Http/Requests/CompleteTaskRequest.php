@@ -13,6 +13,8 @@ class CompleteTaskRequest extends FormRequest
      */
     public function authorize()
     {
+        if(!$this -> ajax())
+            return false;
         return true;
     }
 

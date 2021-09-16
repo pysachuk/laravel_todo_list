@@ -102,11 +102,21 @@ $('.deleteTask').on('click', function (event){
                 success: (data) => {
                     if(data['OK'])
                     {
+                        console.log(data['OK'])
                         swal.hideLoading()
                         new swal(
                             'Успех!',
                             'Задача успешно удалена.',
                             'success'
+                        )
+                    }
+                    else if(data['error'])
+                    {
+                        swal.hideLoading()
+                        new swal(
+                            'Ошибка!',
+                             data['error'],
+                            'error'
                         )
                     }
                 },

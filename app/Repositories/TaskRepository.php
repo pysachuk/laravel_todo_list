@@ -38,9 +38,8 @@ class TaskRepository
         return $task -> delete();
     }
 
-    public function getTaskName($task_id)
+    public function getTask($task_id)
     {
-        $task = Task::findOrFail($task_id);
-        return $task -> task;
+        return Task::findOrFail($task_id);
     }
 }
